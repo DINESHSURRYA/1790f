@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1790F Tutorial - Problem Visualization</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .viz-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+            background: #010409;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+        svg {
+            background: #0d1117;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+        .node {
+            fill: #fff;
+            stroke: var(--accent-color);
+            stroke-width: 3px;
+            transition: fill 0.5s, r 0.3s;
+            cursor: pointer;
+        }
+        .node.black {
+            fill: #ff5555;
+            stroke: #ffaaaa;
+        }
+        .node:hover {
+            r: 18;
+        }
+        .node-text {
+            fill: #000;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: monospace;
+            text-anchor: middle;
+            dominant-baseline: central;
+            pointer-events: none;
+            transition: fill 0.5s;
+        }
+        .node.black + .node-text {
+            fill: #fff;
+        }
+        .edge {
+            stroke: #30363d;
+            stroke-width: 4px;
+            transition: stroke 0.5s;
+        }
+        .edge.highlight {
+            stroke: #ff5555;
+            stroke-width: 6px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        .controls button {
+            background: var(--accent-color);
+            border: none;
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .controls button:disabled {
+            background: #30363d;
+            color: #8b949e;
+            cursor: not-allowed;
+        }
+        .status-panel {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            color: #a5d6ff;
+            text-align: center;
+        }
+        .dist-value {
+            font-size: 1.5rem;
+            color: #ff5555;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Page 0: The Problem - Timofey and Black-White Tree</h1>
+        
+        <p>Before diving into the code, let's understand the problem visually. We are given a tree where initially, one vertex is painted <strong>black</strong> and all others are white.</p>
+        <p>In each step, one new vertex is painted black. We need to output the minimum distance between <em>any</em> two black vertices after each step.</p>
+
+        <div class="viz-container">
+            <svg id="treeSvg" width="400" height="300"></svg>
+            <div class="status-panel">
+                Current Step: <span id="stepCounter">0</span> | Min Distance: <span class="dist-value" id="minDist">&infin;</span>
+            </div>
+            <div class="controls" style="margin-top: 15px;">
+                <button id="resetBtn">Reset</button>
+                <button id="nextBtn">Next Step</button>
+            </div>
+        </div>
+        
+        <p>Notice how the minimum distance only stays the same or decreases. It never increases! This non-increasing property is the key to solving the problem efficiently, leading us to our BFS pruning strategy.</p>
+
+        <div class="nav-buttons">
+            <a href="#" class="btn disabled">Previous</a>
+            <a href="page1_intro.html" class="btn" title="Page 1: Tree Setup & The Infinity Value">Next</a>
+        </div>
+    </div>
+
+    <script>
+        const nodes = [
+            { id: 1, x: 200, y: 50 },
+            { id: 2, x: 100, y: 150 },
+            { id: 3, x: 300, y: 150 },
+            { id: 4, x: 50, y: 250 },
+            { id: 5, x: 150, y: 250 }
+        ];
+
+        const edges = [
+            { source: 1, target: 2 },
+            { source: 1, target: 3 },
+            { source: 2, target: 4 },
+            { source: 2, target: 5 }
+        ];
+
+        // The sequence of nodes turning black
+        // c0 = 1
+        // c1 = 4
+        // c2 = 3
+        // c3 = 5
+        // c4 = 2
+        const sequence = [1, 4, 3, 5, 2];
+        const minDists = ["&infin;", 2, 1, 1, 1]; // calculated min distances at each step
+
+        let currentStep = 0;
+
+        const svg = document.getElementById("treeSvg");
+        const nextBtn = document.getElementById("nextBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const stepCounter = document.getElementById("stepCounter");
+        const minDistSpan = document.getElementById("minDist");
+
+        function drawGraph() {
+            svg.innerHTML = '';
+            
+            // Draw edges
+            edges.forEach(e => {
+                const s = nodes.find(n => n.id === e.source);
+                const t = nodes.find(n => n.id === e.target);
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", s.x);
+                line.setAttribute("y1", s.y);
+                line.setAttribute("x2", t.x);
+                line.setAttribute("y2", t.y);
+                line.setAttribute("class", "edge");
+                line.setAttribute("id", `edge-${s.id}-${t.id}`);
+                svg.appendChild(line);
+            });
+
+            // Draw nodes
+            nodes.forEach(n => {
+                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", n.x);
+                circle.setAttribute("cy", n.y);
+                circle.setAttribute("r", 15);
+                circle.setAttribute("class", "node");
+                circle.setAttribute("id", `node-${n.id}`);
+                
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", n.x);
+                text.setAttribute("y", n.y);
+                text.setAttribute("class", "node-text");
+                text.textContent = n.id;
+
+                group.appendChild(circle);
+                group.appendChild(text);
+                svg.appendChild(group);
+            });
+        }
+
+        function updateState() {
+            // reset all
+            nodes.forEach(n => {
+                document.getElementById(`node-${n.id}`).classList.remove("black");
+            });
+            
+            // apply active blacks
+            for(let i=0; i<=currentStep && i<sequence.length; i++) {
+                document.getElementById(`node-${sequence[i]}`).classList.add("black");
+            }
+            
+            stepCounter.textContent = currentStep;
+            minDistSpan.innerHTML = minDists[currentStep];
+
+            if (currentStep >= sequence.length - 1) {
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.disabled = false;
+            }
+        }
+
+        nextBtn.addEventListener("click", () => {
+            if (currentStep < sequence.length - 1) {
+                currentStep++;
+                updateState();
+            }
+        });
+
+        resetBtn.addEventListener("click", () => {
+            currentStep = 0;
+            updateState();
+        });
+
+        drawGraph();
+        updateState();
+    </script>
+</body>
+</html>

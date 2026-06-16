@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1790F Tutorial - BFS & FAST</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Page 4: BFS vs DFS & Fast I/O</h1>
+        
+        <h2>Why Breadth-First Search (BFS)?</h2>
+        <p>BFS is perfectly suited for unweighted shortest-path problems. Because BFS explores the graph layer by layer, the very first time it reaches a node, it is guaranteed to have found the shortest path to that node.</p>
+        <p>If we used Depth-First Search (DFS), it would plunge deep into the tree, potentially taking a very long, winding path to a node before finding a shorter, more direct path later. BFS ensures we calculate the shortest distance directly and makes our pruning condition (<code>>= ans</code>) highly efficient.</p>
+
+        <h2>The Importance of the <code>FAST</code> macro</h2>
+        <pre><code>#define FAST ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); cerr.tie(0);</code></pre>
+        <p>By default, C++ standard streams (<code>cin</code>/<code>cout</code>) are synchronized with C standard streams (<code>scanf</code>/<code>printf</code>) to allow mixing them safely. This synchronization adds significant overhead.</p>
+        <p>In competitive programming, when processing large inputs (like a tree with 200,000 vertices), standard <code>cin</code> is too slow and can lead to a <strong>Time Limit Exceeded (TLE)</strong> verdict. Using <code>ios_base::sync_with_stdio(false)</code> disables this synchronization, making <code>cin</code> and <code>cout</code> incredibly fast.</p>
+
+        <div class="nav-buttons">
+            <a href="page3_pruning.html" class="btn" title="Page 3: BFS Pruning & Optimization">Previous</a>
+            <a href="page5_complexity.html" class="btn" title="Page 5: Time & Space Complexity">Next</a>
+        </div>
+    </div>
+</body>
+</html>

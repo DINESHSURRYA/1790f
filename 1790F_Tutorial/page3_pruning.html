@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1790F Tutorial - BFS Pruning</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Page 3: BFS Pruning & Optimization</h1>
+        
+        <h2>The Crucial Optimization</h2>
+        <p>Inside our BFS <code>update</code> function, we have this line of code:</p>
+        <pre><code>if (min_dist_to_black[u] >= ans) continue;</code></pre>
+        <p>This is a <strong>critical pruning</strong> step! If the BFS reaches a node whose distance is already greater than or equal to our global minimum answer (<code>ans</code>), it stops exploring that path.</p>
+        <p>Why? Because any path continuing from that node to another black node will definitely be longer than the best distance we've already found. This pruning is what makes the solution fast enough to pass the time limit!</p>
+
+        <h2>Why update <code>ans</code> BEFORE calling <code>update()</code>?</h2>
+        <pre><code>ans = min(ans, min_dist_to_black[c[i]]);
+update(c[i]);</code></pre>
+        <p>Before <code>c[i]</code> officially becomes a black node and updates its neighbors via BFS, we need to find the shortest distance from <code>c[i]</code> to any of the <em>already existing</em> black nodes.</p>
+        <p>Because previous BFS runs updated the <code>min_dist_to_black</code> array, the distance from existing black nodes to <code>c[i]</code> is already stored in <code>min_dist_to_black[c[i]]</code>!</p>
+        <p>So, we record this distance into our global <code>ans</code> first, and <em>then</em> run <code>update(c[i])</code> so it can spread its own distances outward.</p>
+
+        <div class="nav-buttons">
+            <a href="page2_lambda.html" class="btn" title="Page 2: The Lambda Function & BFS">Previous</a>
+            <a href="page4_bfs_macro.html" class="btn" title="Page 4: BFS vs DFS & Fast I/O">Next</a>
+        </div>
+    </div>
+</body>
+</html>

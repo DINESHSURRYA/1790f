@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1790F Tutorial - Full Code</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .code-row {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .code-snippet {
+            margin-bottom: 10px;
+        }
+        .code-explanation {
+            color: #8b949e;
+            font-size: 0.95rem;
+            margin-left: 15px;
+            border-left: 3px solid var(--accent-color);
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 900px;">
+        <h1>Page 6: Complete Line-by-Line Breakdown</h1>
+        
+        <div class="code-row">
+            <pre class="code-snippet"><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;</code></pre>
+            <div class="code-explanation">Includes all standard C++ libraries. Useful for competitive programming but adds compile time.</div>
+        </div>
+
+        <div class="code-row">
+            <pre class="code-snippet"><code>#define FAST ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); cerr.tie(0);
+#define pb push_back</code></pre>
+            <div class="code-explanation">Defines macros to optimize I/O operations and shorten typing for vector insertions.</div>
+        </div>
+
+        <div class="code-row">
+            <pre class="code-snippet"><code>void src() {
+    int n, c0;
+    cin &gt;&gt; n &gt;&gt; c0;</code></pre>
+            <div class="code-explanation">The main solver function. `n`: total vertices. `c0`: the initial black vertex at step 0.</div>
+        </div>
+
+        <div class="code-row">
+            <pre class="code-snippet"><code>    vector&lt;vector&lt;int&gt;&gt; adj(n + 1);
+    for (int i = 0; i &lt; n - 1; i++) {
+        int u, v; cin &gt;&gt; u &gt;&gt; v;
+        adj[u].pb(v);
+        adj[v].pb(u);
+    }</code></pre>
+            <div class="code-explanation">Reads the N-1 edges and populates the bidirectional adjacency list to store the undirected tree.</div>
+        </div>
+
+        <div class="code-row">
+            <pre class="code-snippet"><code>    vector&lt;int&gt; min_dist_to_black(n + 1, n + 5);
+    int ans = n + 5;</code></pre>
+            <div class="code-explanation"><code>min_dist_to_black</code> tracks the shortest distance from any node to any black node. Initialized to a safe infinity (n+5). `ans` tracks the global minimum distance between any TWO black nodes.</div>
+        </div>
+
+        <div class="code-row">
+            <pre class="code-snippet"><code>    auto update = [&amp;](int start_node) {
+        queue&lt;int&gt; q;
+        q.push(start_node);
+        min_dist_to_black[start_node] = 0;</code></pre>
+            <div class="code-explanation">Lambda function performing BFS from a newly colored black node. Distance from itself is 0.</div>
+        </div>
+
+        <div class="code-row">
+            <pre class="code-snippet"><code>        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            
+            if (min_dist_to_black[u] &gt;= ans) continue;</code></pre>
+            <div class="code-explanation">Standard BFS loop. <strong>CRITICAL PRUNING:</strong> If distance is already &ge; ans, any path extending from here will be &gt; ans. No need to explore further!</div>
+        </div>
+
+        <div class="code-row">
+            <pre class="code-snippet"><code>            for (int v : adj[u]) {
+                if (min_dist_to_black[u] + 1 &lt; min_dist_to_black[v]) {
+                    min_dist_to_black[v] = min_dist_to_black[u] + 1;
+                    q.push(v);
+                }
+            }
+        }
+    };</code></pre>
+            <div class="code-explanation">If the path through `u` is shorter than what `v` currently knows, update `v` and push it to explore its neighbors.</div>
+        </div>
+
+        <div class="code-row">
+            <pre class="code-snippet"><code>    update(c0);
+    
+    for (int i = 0; i &lt; n - 1; i++) {
+        ans = min(ans, min_dist_to_black[c[i]]);
+        update(c[i]);
+        cout &lt;&lt; ans &lt;&lt; " ";
+    }
+    cout &lt;&lt; "\n";
+}</code></pre>
+            <div class="code-explanation">Run BFS for the first node `c0`. Then, for each new black node, update the global <code>ans</code> first, run BFS for the new node, and print the answer.</div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="page5_complexity.html" class="btn" title="Page 5: Time & Space Complexity">Previous</a>
+            <a href="#" class="btn disabled">Next</a>
+        </div>
+    </div>
+</body>
+</html>

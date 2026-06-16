@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1790F Tutorial - Intro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Page 1: Tree Setup & The Infinity Value</h1>
+        
+        <h2>Building the Tree</h2>
+        <p>In our code, we read the tree's connections and build an undirected graph using an adjacency list:</p>
+        <pre><code>int u, v; cin &gt;&gt; u &gt;&gt; v;
+adj[u].pb(v);
+adj[v].pb(u);</code></pre>
+        <p>Because the tree paths go both ways (undirected), we must store <code>v</code> in <code>u</code>'s list, AND store <code>u</code> in <code>v</code>'s list. If we didn't do this, our Breadth-First Search (BFS) would only be able to travel one way!</p>
+
+        <h2>Why initialize with <code>n + 5</code>?</h2>
+        <p>We use an array called <code>min_dist_to_black</code> to track the shortest distance from any node to any black node.</p>
+        <pre><code>vector&lt;int&gt; min_dist_to_black(n + 1, n + 5);
+int ans = n + 5;</code></pre>
+        <p>We initialize it with <code>n + 5</code> as a safe "infinity" value. In a tree with <code>n</code> vertices, the maximum possible distance between any two nodes is <code>n - 1</code>. By setting it to <code>n + 5</code>, we guarantee it is strictly greater than any valid shortest path.</p>
+        <p>We avoid <code>INT_MAX</code> because adding <code>1</code> to it later could cause integer overflow!</p>
+
+        <div class="nav-buttons">
+            <a href="page0_visualization.html" class="btn" title="Page 0: The Problem">Previous</a>
+            <a href="page2_lambda.html" class="btn" title="Page 2: The Lambda Function & BFS">Next</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1790F Tutorial - Complexity</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Page 5: Time & Space Complexity</h1>
+        
+        <h2>Space Complexity: <span style="color: #00f0ff;">O(N)</span></h2>
+        <p>We need to store the structure of the tree and a few state arrays:</p>
+        <ul>
+            <li>The adjacency list <code>adj</code> stores an undirected tree, requiring 2N - 2 integers.</li>
+            <li>The <code>c</code> array (sequence of black nodes) takes O(N) space.</li>
+            <li>The <code>min_dist_to_black</code> array takes O(N) space.</li>
+            <li>The BFS queue takes at most O(N) space in the worst case.</li>
+        </ul>
+        <p>We don't use any large matrices O(N²) or heavy deep recursion stacks, making it strictly linear O(N) space.</p>
+
+        <h2>Time Complexity: <span style="color: #00f0ff;">O(N log N) / O(N&radic;N)</span></h2>
+        <p>The worst-case time complexity without pruning would be O(N²) (running a full BFS from N nodes). However, thanks to the pruning condition <code>if (min_dist_to_black[u] >= ans) continue;</code>, the time complexity is amortized and heavily bounded.</p>
+        
+        <h3>Why it passes the time limit:</h3>
+        <ol>
+            <li>Every time we add a new black node, the global <code>ans</code> can <strong>only decrease</strong>.</li>
+            <li>When we run BFS, we ONLY explore neighboring nodes up to a depth of <code>ans</code>.</li>
+            <li>Because <code>ans</code> rapidly drops as we add more black nodes, the "exploration radius" of our BFS shrinks significantly very quickly.</li>
+            <li>If a cluster of nodes is close together, <code>ans</code> drops to a tiny number (like 1 or 2) almost immediately, meaning all future BFS runs will stop instantly!</li>
+        </ol>
+
+        <div class="nav-buttons">
+            <a href="page4_bfs_macro.html" class="btn" title="Page 4: BFS vs DFS & Fast I/O">Previous</a>
+            <a href="page6_code.html" class="btn" title="Page 6: Full Line-by-Line Code Breakdown">Next</a>
+        </div>
+    </div>
+</body>
+</html>
